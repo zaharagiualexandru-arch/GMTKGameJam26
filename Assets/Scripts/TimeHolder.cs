@@ -15,7 +15,7 @@ public class TimeHolder : MonoBehaviour
 
     private void Awake()
     {
-        RemainingTime = startingTime;
+        RemainingTime = Mathf.Max(0f, startingTime);
     }
 
     private void Update()
@@ -25,30 +25,54 @@ public class TimeHolder : MonoBehaviour
             return;
         }
 
-        RemainingTime = Mathf.Max(0f, RemainingTime - Time.deltaTime);
-
-        if (RemainingTime <= 0f)
-        {
-            expirationTriggered = true;
-            Expired?.Invoke(this);
-        }
+        SetTime(RemainingTime - Time.deltaTime);
     }
 
     public void SetTime(float value)
     {
         RemainingTime = Mathf.Max(0f, value);
-        expirationTriggered = RemainingTime <= 0f;
+
+        if (RemainingTime > 0f)
+        {
+            expirationTriggered = false;
+            return;
+        }
+
+        TriggerExpiration();
     }
 
     public void AddTime(float amount)
     {
-        SetTime(RemainingTime + amount);
+        SetTime(RemainingTime + Mathf.Max(0f, amount));
+    }
+
+    public float RemoveTime(float amount)
+    {
+        float removedTime = Mathf.Min(
+            RemainingTime,
+            Mathf.Max(0f, amount)
+        );
+
+        SetTime(RemainingTime - removedTime);
+        return removedTime;
     }
 
     public void SwapTime(TimeHolder other)
     {
         float previousTime = RemainingTime;
+
         SetTime(other.RemainingTime);
         other.SetTime(previousTime);
+    }
+
+    private void TriggerExpiration()
+    {
+        if (expirationTriggered)
+        {
+            return;
+        }
+
+        expirationTriggered = true;
+        Expired?.Invoke(this);
     }
 }

@@ -117,6 +117,8 @@ GameObject:
   - component: {fileID: 2211648002237739272}
   - component: {fileID: 5951590928293955251}
   - component: {fileID: 977905634257361461}
+  - component: {fileID: 1977526935985342530}
+  - component: {fileID: 3765663269782793167}
   m_Layer: 0
   m_Name: NPC
   m_TagString: Untagged
@@ -300,6 +302,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b2e558c91dc70342ae750cf1271487f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DestroyOnTimeExpired
+--- !u!114 &1977526935985342530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6285020241645319361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b25e343d57fc0448aebb2b7287c303, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCMovement
+  chaseSpeed: 3.5
+  fleeSpeed: 3
+--- !u!114 &3765663269782793167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6285020241645319361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d89ab1e9c3a380e448a524040d270da5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCContactSteal
+  stealAmount: 1
+  stealInterval: 0.75
+  floatingTextPrefab: {fileID: 4270892434541356533, guid: 5e2a1247a93073e49b14f5f16002c9c3, type: 3}
+  textOffset: {x: 0, y: 1.25, z: 0}
+  gainedColour: {r: 0.1, g: 0.7, b: 0.2, a: 1}
+  lostColour: {r: 0.9, g: 0.1, b: 0.1, a: 1}
 --- !u!1 &6999768410485340997
 GameObject:
   m_ObjectHideFlags: 0
