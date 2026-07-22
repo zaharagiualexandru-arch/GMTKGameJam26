@@ -26,31 +26,38 @@ public class NPCContactSteal : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (!collision.gameObject.CompareTag("Player") ||
-            Time.time < nextStealTime)
+        if (Time.time < nextStealTime)
         {
             return;
         }
 
-        TimeHolder playerTime =
-            collision.gameObject.GetComponent<TimeHolder>();
+        TimeHolder targetTime =
+            collision.collider.GetComponentInParent<TimeHolder>();
 
-        if (playerTime == null ||
-            playerTime.IsExpired ||
+        if (targetTime == null ||
+            targetTime == npcTime ||
+            targetTime.IsExpired ||
             npcTime.IsExpired)
         {
             return;
         }
 
         int npcSeconds = Mathf.CeilToInt(npcTime.RemainingTime);
-        int playerSeconds = Mathf.CeilToInt(playerTime.RemainingTime);
+        int targetSeconds = Mathf.CeilToInt(targetTime.RemainingTime);
 
-        if (npcSeconds > playerSeconds)
+        bool targetIsPlayer = targetTime.CompareTag("Player");
+
+        bool canSteal =
+            targetSeconds > npcSeconds ||
+            (targetIsPlayer && targetSeconds == npcSeconds);
+
+        if (!canSteal)
         {
             return;
         }
 
-        float stolenTime = playerTime.RemoveTime(stealAmount);
+        Vector3 targetPosition = targetTime.transform.position;
+        float stolenTime = targetTime.RemoveTime(stealAmount);
 
         if (stolenTime <= 0f)
         {
@@ -67,7 +74,7 @@ public class NPCContactSteal : MonoBehaviour
         );
 
         CreateFloatingText(
-            collision.transform.position,
+            targetPosition,
             $"-{stolenTime:0.#}",
             lostColour
         );

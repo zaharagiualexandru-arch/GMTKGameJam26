@@ -4,13 +4,46 @@ using UnityEngine;
 [RequireComponent(typeof(TimeHolder))]
 public class NPCMovement : MonoBehaviour
 {
+    private enum MovementState
+    {
+        Wander,
+        Chase,
+        Flee
+    }
+
+    [SerializeField] private float wanderSpeed = 2f;
     [SerializeField] private float chaseSpeed = 3.5f;
-    [SerializeField] private float fleeSpeed = 3f;
+    [SerializeField] private float fleeSpeed = 3.2f;
+
+    [SerializeField] private float awarenessRadius = 7f;
+    [SerializeField] private float dangerRadius = 4.5f;
+    [SerializeField] private float targetRefreshInterval = 0.25f;
+
+    [SerializeField]
+    private Vector2 minimumBounds =
+        new Vector2(-19.5f, -11.5f);
+
+    [SerializeField]
+    private Vector2 maximumBounds =
+        new Vector2(19.5f, 11.5f);
+
+    [SerializeField] private float wallAvoidanceDistance = 2f;
+    [SerializeField] private float wallAvoidanceStrength = 3f;
+
+    [SerializeField]
+    private Vector2 wanderIntervalRange =
+        new Vector2(1.2f, 2.5f);
 
     private Rigidbody2D rb;
     private TimeHolder timeHolder;
-    private Transform player;
-    private TimeHolder playerTime;
+
+    private TimeHolder chaseTarget;
+    private TimeHolder fleeTarget;
+    private MovementState movementState;
+
+    private Vector2 wanderDirection;
+    private float nextWanderChange;
+    private float nextTargetRefresh;
 
     private void Awake()
     {
@@ -20,35 +53,175 @@ public class NPCMovement : MonoBehaviour
 
     private void Start()
     {
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        PickWanderDirection();
 
-        player = playerObject.transform;
-        playerTime = playerObject.GetComponent<TimeHolder>();
+        nextTargetRefresh =
+            Time.time + Random.Range(0f, targetRefreshInterval);
+    }
+
+    private void Update()
+    {
+        if (Time.time >= nextTargetRefresh)
+        {
+            RefreshTargets();
+            nextTargetRefresh = Time.time + targetRefreshInterval;
+        }
+
+        if (movementState == MovementState.Wander &&
+            Time.time >= nextWanderChange)
+        {
+            PickWanderDirection();
+        }
     }
 
     private void FixedUpdate()
     {
-        if (timeHolder.IsExpired || playerTime.IsExpired)
+        if (timeHolder.IsExpired)
         {
             rb.linearVelocity = Vector2.zero;
             return;
         }
 
-        Vector2 directionToPlayer =
-            ((Vector2)player.position - rb.position).normalized;
+        Vector2 moveDirection = wanderDirection;
+        float movementSpeed = wanderSpeed;
 
-        int npcSeconds = Mathf.CeilToInt(timeHolder.RemainingTime);
-        int playerSeconds = Mathf.CeilToInt(playerTime.RemainingTime);
-
-        bool shouldFlee = npcSeconds > playerSeconds;
-
-        if (shouldFlee)
+        if (movementState == MovementState.Chase &&
+            chaseTarget != null)
         {
-            rb.linearVelocity = -directionToPlayer * fleeSpeed;
+            moveDirection =
+                ((Vector2)chaseTarget.transform.position - rb.position)
+                .normalized;
+
+            movementSpeed = chaseSpeed;
+        }
+        else if (movementState == MovementState.Flee &&
+                 fleeTarget != null)
+        {
+            moveDirection =
+                (rb.position - (Vector2)fleeTarget.transform.position)
+                .normalized;
+
+            movementSpeed = fleeSpeed;
+        }
+
+        moveDirection = ApplyWallAvoidance(moveDirection);
+
+        rb.linearVelocity =
+            moveDirection.normalized * movementSpeed;
+    }
+
+    private void RefreshTargets()
+    {
+        chaseTarget = null;
+        fleeTarget = null;
+
+        int ownSeconds = Mathf.CeilToInt(timeHolder.RemainingTime);
+
+        float nearestRichDistance = float.MaxValue;
+        float nearestThreatDistance = float.MaxValue;
+
+        Collider2D[] nearbyColliders =
+            Physics2D.OverlapCircleAll(rb.position, awarenessRadius);
+
+        foreach (Collider2D nearbyCollider in nearbyColliders)
+        {
+            TimeHolder candidate =
+                nearbyCollider.GetComponentInParent<TimeHolder>();
+
+            if (candidate == null ||
+                candidate == timeHolder ||
+                candidate.IsExpired)
+            {
+                continue;
+            }
+
+            float distance = Vector2.Distance(
+                rb.position,
+                candidate.transform.position
+            );
+
+            int candidateSeconds =
+                Mathf.CeilToInt(candidate.RemainingTime);
+
+            bool candidateIsPlayer =
+                candidate.CompareTag("Player");
+
+            bool canChase =
+                candidateSeconds > ownSeconds ||
+                (candidateIsPlayer && candidateSeconds == ownSeconds);
+
+            if (canChase && distance < nearestRichDistance)
+            {
+                chaseTarget = candidate;
+                nearestRichDistance = distance;
+            }
+
+            bool isThreat =
+                candidateSeconds < ownSeconds &&
+                distance <= dangerRadius;
+
+            if (isThreat && distance < nearestThreatDistance)
+            {
+                fleeTarget = candidate;
+                nearestThreatDistance = distance;
+            }
+        }
+
+        if (fleeTarget != null)
+        {
+            movementState = MovementState.Flee;
+        }
+        else if (chaseTarget != null)
+        {
+            movementState = MovementState.Chase;
         }
         else
         {
-            rb.linearVelocity = directionToPlayer * chaseSpeed;
+            movementState = MovementState.Wander;
         }
+    }
+
+    private Vector2 ApplyWallAvoidance(Vector2 direction)
+    {
+        Vector2 avoidance = Vector2.zero;
+
+        avoidance.x += Mathf.Clamp01(
+            (minimumBounds.x + wallAvoidanceDistance - rb.position.x) /
+            wallAvoidanceDistance
+        );
+
+        avoidance.x -= Mathf.Clamp01(
+            (rb.position.x -
+             (maximumBounds.x - wallAvoidanceDistance)) /
+            wallAvoidanceDistance
+        );
+
+        avoidance.y += Mathf.Clamp01(
+            (minimumBounds.y + wallAvoidanceDistance - rb.position.y) /
+            wallAvoidanceDistance
+        );
+
+        avoidance.y -= Mathf.Clamp01(
+            (rb.position.y -
+             (maximumBounds.y - wallAvoidanceDistance)) /
+            wallAvoidanceDistance
+        );
+
+        return direction + avoidance * wallAvoidanceStrength;
+    }
+
+    private void PickWanderDirection()
+    {
+        wanderDirection = Random.insideUnitCircle.normalized;
+
+        if (wanderDirection == Vector2.zero)
+        {
+            wanderDirection = Vector2.right;
+        }
+
+        nextWanderChange = Time.time + Random.Range(
+            wanderIntervalRange.x,
+            wanderIntervalRange.y
+        );
     }
 }
