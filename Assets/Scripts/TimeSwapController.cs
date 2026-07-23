@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(TimeHolder))]
@@ -6,6 +7,15 @@ public class TimeSwapController : MonoBehaviour
     [SerializeField] private float swapRange = 4f;
     [SerializeField] private float selectionRadius = 0.75f;
     [SerializeField] private float swapCooldown = 2f;
+    [SerializeField] private TMP_Text cooldownText;
+
+    [SerializeField]
+    private Color readyColour =
+        new Color(0.1f, 0.75f, 0.25f);
+
+    [SerializeField]
+    private Color cooldownColour =
+        new Color(1f, 0.55f, 0f);
 
     public float CooldownRemaining =>
         Mathf.Max(0f, nextSwapTime - Time.time);
@@ -13,9 +23,10 @@ public class TimeSwapController : MonoBehaviour
     private Camera mainCamera;
     private TimeHolder playerTime;
     private TimeHolder currentTarget;
-    private SpriteRenderer highlightedRenderer;
-    private Color originalColour;
+    private TargetHighlight currentHighlight;
+
     private float nextSwapTime;
+    private bool targetInRange;
 
     private void Awake()
     {
@@ -26,41 +37,42 @@ public class TimeSwapController : MonoBehaviour
     private void Update()
     {
         FindTarget();
+        UpdateTargetRange();
 
-        if (Input.GetMouseButtonDown(0) &&
+        bool canSwap =
             currentTarget != null &&
-            CooldownRemaining <= 0f)
+            targetInRange &&
+            CooldownRemaining <= 0f;
+
+        if (Input.GetMouseButtonDown(0) && canSwap)
         {
             playerTime.SwapTime(currentTarget);
             nextSwapTime = Time.time + swapCooldown;
         }
+
+        UpdateHighlight();
+        UpdateCooldownText();
     }
 
     private void FindTarget()
     {
-        Vector3 mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D[] hits = Physics2D.OverlapCircleAll(mousePosition, selectionRadius);
+        Vector3 mousePosition =
+            mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        Collider2D[] hits =
+            Physics2D.OverlapCircleAll(mousePosition, selectionRadius);
 
         TimeHolder closestTarget = null;
         float closestDistance = float.MaxValue;
 
         foreach (Collider2D hit in hits)
         {
-            TimeHolder candidate = hit.GetComponentInParent<TimeHolder>();
+            TimeHolder candidate =
+                hit.GetComponentInParent<TimeHolder>();
 
             if (candidate == null ||
                 candidate == playerTime ||
                 candidate.IsExpired)
-            {
-                continue;
-            }
-
-            float distanceFromPlayer = Vector2.Distance(
-                transform.position,
-                candidate.transform.position
-            );
-
-            if (distanceFromPlayer > swapRange)
             {
                 continue;
             }
@@ -83,28 +95,64 @@ public class TimeSwapController : MonoBehaviour
         }
     }
 
-    private void SetTarget(TimeHolder target)
+    private void UpdateTargetRange()
     {
-        if (highlightedRenderer != null)
+        if (currentTarget == null)
         {
-            highlightedRenderer.color = originalColour;
+            targetInRange = false;
+            return;
         }
 
-        currentTarget = target;
-        highlightedRenderer = null;
+        targetInRange = Vector2.Distance(
+            transform.position,
+            currentTarget.transform.position
+        ) <= swapRange;
+    }
 
-        if (currentTarget == null)
+    private void UpdateHighlight()
+    {
+        if (currentHighlight == null)
         {
             return;
         }
 
-        highlightedRenderer =
-            currentTarget.GetComponentInChildren<SpriteRenderer>();
+        bool canSwap =
+            targetInRange &&
+            CooldownRemaining <= 0f;
 
-        if (highlightedRenderer != null)
+        currentHighlight.SetHighlighted(canSwap);
+    }
+
+    private void UpdateCooldownText()
+    {
+        if (CooldownRemaining > 0f)
         {
-            originalColour = highlightedRenderer.color;
-            highlightedRenderer.color = Color.yellow;
+            cooldownText.text =
+                $"SWAP: {CooldownRemaining:0.0}";
+
+            cooldownText.color = cooldownColour;
+        }
+        else
+        {
+            cooldownText.text = "SWAP: READY";
+            cooldownText.color = readyColour;
+        }
+    }
+
+    private void SetTarget(TimeHolder target)
+    {
+        if (currentHighlight != null)
+        {
+            currentHighlight.SetHighlighted(false);
+        }
+
+        currentTarget = target;
+        currentHighlight = null;
+
+        if (currentTarget != null)
+        {
+            currentHighlight =
+                currentTarget.GetComponent<TargetHighlight>();
         }
     }
 
