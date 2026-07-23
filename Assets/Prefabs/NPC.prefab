@@ -240,7 +240,7 @@ CircleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: e65073d75af6a8a4ea303af2e92a3bf3, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -316,16 +316,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10b25e343d57fc0448aebb2b7287c303, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCMovement
-  wanderSpeed: 2
+  wanderSpeed: 2.5
   chaseSpeed: 3.5
-  fleeSpeed: 3
+  fleeSpeed: 5
   awarenessRadius: 7
   dangerRadius: 4.5
   targetRefreshInterval: 0.25
   minimumBounds: {x: -19.5, y: -11.5}
   maximumBounds: {x: 19.5, y: 11.5}
-  wallAvoidanceDistance: 2
-  wallAvoidanceStrength: 3
+  wallAvoidanceDistance: 2.5
+  wallAvoidanceStrength: 1
   wanderIntervalRange: {x: 1.2, y: 2.5}
 --- !u!114 &3765663269782793167
 MonoBehaviour:

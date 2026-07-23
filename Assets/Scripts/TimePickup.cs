@@ -4,6 +4,7 @@ using UnityEngine;
 public class TimePickup : MonoBehaviour
 {
     [SerializeField] private float startingValue = 10f;
+    [SerializeField] private float maximumTimeAfterPickup = 30f;
     [SerializeField] private TMP_Text valueText;
 
     public float RemainingValue { get; private set; }
@@ -36,26 +37,41 @@ public class TimePickup : MonoBehaviour
         }
     }
 
+    public bool CanBeCollectedBy(TimeHolder collector)
+    {
+        return !collected &&
+               RemainingValue > 0f &&
+               collector != null &&
+               !collector.IsExpired &&
+               collector.RemainingTime <
+               maximumTimeAfterPickup;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        TimeHolder playerTime =
+        TimeHolder collector =
             other.GetComponentInParent<TimeHolder>();
 
-        if (collected ||
-            playerTime == null ||
-            !playerTime.CompareTag("Player") ||
-            playerTime.IsExpired)
+        if (!CanBeCollectedBy(collector))
         {
             return;
         }
 
         collected = true;
 
-        int gainedSeconds =
+        int displayedValue =
             Mathf.CeilToInt(RemainingValue);
 
-        playerTime.AddTime(gainedSeconds);
+        float availableSpace =
+            maximumTimeAfterPickup -
+            collector.RemainingTime;
 
+        float gainedTime = Mathf.Min(
+            displayedValue,
+            availableSpace
+        );
+
+        collector.AddTime(gainedTime);
         Destroy(gameObject);
     }
 
@@ -64,6 +80,7 @@ public class TimePickup : MonoBehaviour
         RemainingValue = Mathf.Max(1f, value);
         UpdateText();
     }
+
     private void UpdateText()
     {
         valueText.text =
