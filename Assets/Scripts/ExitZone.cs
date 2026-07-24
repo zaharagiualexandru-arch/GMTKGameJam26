@@ -5,14 +5,8 @@ public class ExitZone : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
     [SerializeField] private SpriteRenderer exitRenderer;
-
-    [SerializeField]
-    private Color closedColour =
-        new Color(0.25f, 0.25f, 0.25f);
-
-    [SerializeField]
-    private Color openColour =
-        new Color(0.1f, 0.75f, 0.25f);
+    [SerializeField] private Sprite closedSprite;
+    [SerializeField] private Sprite openSprite;
 
     public bool IsOpen { get; private set; }
 
@@ -25,7 +19,11 @@ public class ExitZone : MonoBehaviour
     public void SetOpen(bool isOpen)
     {
         IsOpen = isOpen;
-        exitRenderer.color = isOpen ? openColour : closedColour;
+
+        exitRenderer.sprite =
+            isOpen ? openSprite : closedSprite;
+
+        exitRenderer.color = Color.white;
     }
 
     private void OnTriggerStay2D(Collider2D other)

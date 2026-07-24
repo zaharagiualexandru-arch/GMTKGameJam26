@@ -3,7 +3,6 @@ using UnityEngine;
 public class RandomExitPosition : MonoBehaviour
 {
     [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private RectTransform exitLabel;
 
     private void Awake()
     {
@@ -22,10 +21,5 @@ public class RandomExitPosition : MonoBehaviour
             selectedPoint.position,
             selectedPoint.rotation
         );
-
-        if (exitLabel != null)
-        {
-            exitLabel.rotation = Quaternion.identity;
-        }
     }
 }
