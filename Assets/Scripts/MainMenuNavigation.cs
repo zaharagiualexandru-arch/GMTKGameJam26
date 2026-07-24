@@ -7,6 +7,15 @@ public class MainMenuNavigation : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
+        if (PixelTransition.Instance != null)
+        {
+            PixelTransition.Instance.TransitionToScene(
+                mainMenuSceneName
+            );
+
+            return;
+        }
+
         Time.timeScale = 1f;
         SceneManager.LoadScene(mainMenuSceneName);
     }

@@ -79,17 +79,27 @@ public class GameManager : MonoBehaviour
         }
 
         roundEnded = true;
-        victoryPanel.SetActive(true);
         Time.timeScale = 0f;
+
+        ShowEndPanel(victoryPanel);
     }
 
     public void RestartGame()
     {
-        Time.timeScale = 1f;
+        string currentScene =
+            SceneManager.GetActiveScene().name;
 
-        SceneManager.LoadScene(
-            SceneManager.GetActiveScene().name
-        );
+        if (PixelTransition.Instance != null)
+        {
+            PixelTransition.Instance.TransitionToScene(
+                currentScene
+            );
+
+            return;
+        }
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(currentScene);
     }
 
     private IEnumerator BeginRoundCountdown()
@@ -139,7 +149,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void HandlePlayerExpired(
-        TimeHolder expiredTimeHolder)
+    TimeHolder expiredTimeHolder)
     {
         if (roundEnded)
         {
@@ -147,8 +157,9 @@ public class GameManager : MonoBehaviour
         }
 
         roundEnded = true;
-        deathPanel.SetActive(true);
         Time.timeScale = 0f;
+
+        ShowEndPanel(deathPanel);
     }
 
     private void UpdateTimerText()
@@ -172,5 +183,19 @@ public class GameManager : MonoBehaviour
         {
             playerTime.Expired -= HandlePlayerExpired;
         }
+    }
+
+    private void ShowEndPanel(GameObject panel)
+    {
+        if (PixelTransition.Instance != null)
+        {
+            PixelTransition.Instance.TransitionAction(
+                () => panel.SetActive(true)
+            );
+
+            return;
+        }
+
+        panel.SetActive(true);
     }
 }

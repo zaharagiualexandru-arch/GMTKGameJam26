@@ -10,24 +10,57 @@ public class MainMenuController : MonoBehaviour
     private void Start()
     {
         Time.timeScale = 1f;
-        ShowMainMenu();
+        SetMenuState(true, false);
     }
 
     public void PlayGame()
     {
-        Time.timeScale = 1f;
+        if (PixelTransition.Instance != null)
+        {
+            PixelTransition.Instance.TransitionToScene(
+                gameSceneName
+            );
+
+            return;
+        }
+
         SceneManager.LoadScene(gameSceneName);
     }
 
     public void ShowHowToPlay()
     {
-        mainMenuContent.SetActive(false);
-        howToPlayPanel.SetActive(true);
+        TransitionMenuState(false, true);
     }
 
     public void ShowMainMenu()
     {
-        howToPlayPanel.SetActive(false);
-        mainMenuContent.SetActive(true);
+        TransitionMenuState(true, false);
+    }
+
+    private void TransitionMenuState(
+        bool showMenu,
+        bool showInstructions)
+    {
+        if (PixelTransition.Instance != null)
+        {
+            PixelTransition.Instance.TransitionAction(
+                () => SetMenuState(
+                    showMenu,
+                    showInstructions
+                )
+            );
+
+            return;
+        }
+
+        SetMenuState(showMenu, showInstructions);
+    }
+
+    private void SetMenuState(
+        bool showMenu,
+        bool showInstructions)
+    {
+        mainMenuContent.SetActive(showMenu);
+        howToPlayPanel.SetActive(showInstructions);
     }
 }
