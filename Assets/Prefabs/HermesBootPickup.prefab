@@ -245,7 +245,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityPickup
   abilityType: 0
-  despawnDuration: 10
+  despawnDuration: 14
   effectDuration: 4
   speedMultiplier: 1.5
   countdownText: {fileID: 7732793530805674879}

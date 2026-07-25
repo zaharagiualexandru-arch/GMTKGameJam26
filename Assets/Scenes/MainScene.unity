@@ -290,11 +290,11 @@ MonoBehaviour:
   watchPrefab: {fileID: 3427620312376490067, guid: d6f1a040ab064c742bfede5e0663444b, type: 3}
   initialCount: 2
   maximumActiveWatches: 3
-  spawnIntervalRange: {x: 12, y: 18}
+  spawnIntervalRange: {x: 5, y: 8}
   minimumBounds: {x: -18.5, y: -10.5}
   maximumBounds: {x: 18.5, y: 10.5}
-  minimumWatchValue: 5
-  maximumWatchValue: 8
+  minimumWatchValue: 7
+  maximumWatchValue: 9
   spawnClearance: 0.75
 --- !u!4 &30402770
 Transform:
@@ -2250,9 +2250,9 @@ MonoBehaviour:
   - {fileID: 3035931361753476629, guid: 78b750e5aca26fd4f9d6a1b906fbc985, type: 3}
   minimumBounds: {x: -18, y: -10}
   maximumBounds: {x: 18, y: 10}
-  initialSpawnDelayRange: {x: 5, y: 8}
-  spawnIntervalRange: {x: 10, y: 15}
-  maximumActiveAbilities: 10
+  initialSpawnDelayRange: {x: 3, y: 5}
+  spawnIntervalRange: {x: 6, y: 9}
+  maximumActiveAbilities: 3
 --- !u!4 &888562690
 Transform:
   m_ObjectHideFlags: 0
@@ -3105,7 +3105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d479073d5a68a044b6bd0c3030f9b66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeSwapController
-  swapRange: 2
+  swapRange: 2.5
   selectionRadius: 0.75
   swapCooldown: 5
   cooldownText: {fileID: 683480186}
@@ -5447,15 +5447,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCSpawner
   npcPrefab: {fileID: 6285020241645319361, guid: f2486896c2aee07439f6de0f3948cf71, type: 3}
-  initialCount: 18
+  initialCount: 22
   maximumNPCs: 22
-  spawnInterval: 2
+  spawnInterval: 0.5
   minimumBounds: {x: -18.5, y: -10.5}
   maximumBounds: {x: 18.5, y: 10.5}
-  minimumStartingTime: 5
-  maximumStartingTime: 25
+  minimumStartingTime: 10
+  maximumStartingTime: 18
   minimumDistanceFromPlayer: 4
-  spawnClearance: 0.8
+  spawnClearance: 1
 --- !u!4 &2111194249
 Transform:
   m_ObjectHideFlags: 0

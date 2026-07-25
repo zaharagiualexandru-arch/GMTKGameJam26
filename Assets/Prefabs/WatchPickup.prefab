@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdc0f709e1fbff4499ffd9a5322ae67a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimePickup
-  startingValue: 10
+  startingValue: 8
   maximumTimeAfterPickup: 30
   valueText: {fileID: 7732793530805674879}
   pickupSound: {fileID: 8300000, guid: f266291cc0b857f4bb2e77853d161856, type: 3}
