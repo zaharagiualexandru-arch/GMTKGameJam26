@@ -2548,7 +2548,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7e9b0d7c80c25e4089ec27337ca65b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 6
+  moveSpeed: 5
 --- !u!58 &1186000949
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2919,7 +2919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 177573942280e4a4fa141f905aa0465c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  evacuationDuration: 7
+  evacuationDuration: 60
   evacuationTimerText: {fileID: 1402103758}
   startCountdownText: {fileID: 982221482}
   startingCountdown: 3
