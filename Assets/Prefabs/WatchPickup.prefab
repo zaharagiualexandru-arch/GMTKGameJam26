@@ -247,6 +247,8 @@ MonoBehaviour:
   startingValue: 10
   maximumTimeAfterPickup: 30
   valueText: {fileID: 7732793530805674879}
+  pickupSound: {fileID: 8300000, guid: f266291cc0b857f4bb2e77853d161856, type: 3}
+  pickupVolume: 0.8
 --- !u!1 &6259054792201713844
 GameObject:
   m_ObjectHideFlags: 0

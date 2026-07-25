@@ -10,6 +10,27 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Text startCountdownText;
     [SerializeField] private int startingCountdown = 3;
     [SerializeField] private float goDisplayDuration = 0.5f;
+
+    [SerializeField] private AudioClip[] clockTickSounds;
+    [SerializeField] private float countdownTickVolume = 0.8f;
+    [SerializeField] private float goTickPitch = 1.3f;
+
+    [SerializeField] private int lowTimeWarningThreshold = 5;
+    [SerializeField] private float lowTimeTickVolume = 0.85f;
+
+    [SerializeField]
+    private Vector2 lowTimePitchRange =
+        new Vector2(0.95f, 1.2f);
+
+    [SerializeField] private AudioSource inGameMusicSource;
+    [SerializeField] private AudioClip doorOpenSound;
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioClip loseSound;
+
+    [SerializeField] private float doorOpenVolume = 0.9f;
+    [SerializeField] private float winVolume = 1f;
+    [SerializeField] private float loseVolume = 1f;
+
     [SerializeField] private ExitZone exitZone;
     [SerializeField] private GameObject deathPanel;
     [SerializeField] private GameObject victoryPanel;
@@ -18,7 +39,11 @@ public class GameManager : MonoBehaviour
     private PlayerMovement playerMovement;
     private TimeSwapController timeSwapController;
 
+    private AudioSource clockAudioSource;
+    private AudioSource eventAudioSource;
+
     private float evacuationTimeRemaining;
+    private int previousDisplayedPlayerTime;
     private bool roundStarted;
     private bool exitOpened;
     private bool roundEnded;
@@ -26,17 +51,30 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Time.timeScale = 0f;
+
+        clockAudioSource =
+            CreateAudioSource("ClockAudioSource");
+
+        eventAudioSource =
+            CreateAudioSource("EventAudioSource");
     }
 
     private void Start()
     {
+        FindGameplayMusicSource();
+
         GameObject player =
             GameObject.FindGameObjectWithTag("Player");
 
         playerTime = player.GetComponent<TimeHolder>();
-        playerMovement = player.GetComponent<PlayerMovement>();
+        playerMovement =
+            player.GetComponent<PlayerMovement>();
+
         timeSwapController =
             player.GetComponent<TimeSwapController>();
+
+        previousDisplayedPlayerTime =
+            Mathf.CeilToInt(playerTime.RemainingTime);
 
         playerTime.Expired += HandlePlayerExpired;
 
@@ -53,7 +91,14 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (!roundStarted || roundEnded || exitOpened)
+        if (!roundStarted || roundEnded)
+        {
+            return;
+        }
+
+        UpdateLowTimeWarning();
+
+        if (exitOpened)
         {
             return;
         }
@@ -80,6 +125,10 @@ public class GameManager : MonoBehaviour
 
         roundEnded = true;
         Time.timeScale = 0f;
+
+        clockAudioSource.Stop();
+        StopGameplayMusic();
+        PlayEventSound(winSound, winVolume);
 
         ShowEndPanel(victoryPanel);
     }
@@ -110,12 +159,23 @@ public class GameManager : MonoBehaviour
              number > 0;
              number--)
         {
-            startCountdownText.text = number.ToString();
+            startCountdownText.text =
+                number.ToString();
+
+            int soundIndex =
+                startingCountdown - number;
+
+            PlayClockTick(soundIndex, 1f);
 
             yield return new WaitForSecondsRealtime(1f);
         }
 
         startCountdownText.text = "GO!";
+
+        PlayClockTick(
+            startingCountdown - 1,
+            goTickPitch
+        );
 
         roundStarted = true;
         Time.timeScale = 1f;
@@ -128,16 +188,181 @@ public class GameManager : MonoBehaviour
         startCountdownText.gameObject.SetActive(false);
     }
 
-    private void SetPlayerControls(bool controlsEnabled)
+    private AudioSource CreateAudioSource(
+        string objectName)
+    {
+        GameObject sourceObject =
+            new GameObject(objectName);
+
+        sourceObject.transform.SetParent(
+            transform,
+            false
+        );
+
+        AudioSource source =
+            sourceObject.AddComponent<AudioSource>();
+
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
+
+        return source;
+    }
+
+    private void FindGameplayMusicSource()
+    {
+        if (inGameMusicSource != null)
+        {
+            return;
+        }
+
+        GameObject musicObject =
+            GameObject.Find("InGameMusic");
+
+        if (musicObject != null)
+        {
+            inGameMusicSource =
+                musicObject.GetComponent<AudioSource>();
+        }
+    }
+
+    private void PlayClockTick(
+        int soundIndex,
+        float pitch)
+    {
+        if (clockTickSounds == null ||
+            clockTickSounds.Length == 0)
+        {
+            return;
+        }
+
+        soundIndex = Mathf.Clamp(
+            soundIndex,
+            0,
+            clockTickSounds.Length - 1
+        );
+
+        AudioClip selectedSound =
+            clockTickSounds[soundIndex];
+
+        if (selectedSound == null)
+        {
+            return;
+        }
+
+        clockAudioSource.pitch = pitch;
+
+        clockAudioSource.PlayOneShot(
+            selectedSound,
+            countdownTickVolume
+        );
+    }
+
+    private void UpdateLowTimeWarning()
+    {
+        int displayedPlayerTime =
+            Mathf.CeilToInt(
+                playerTime.RemainingTime
+            );
+
+        bool timeDecreased =
+            displayedPlayerTime <
+            previousDisplayedPlayerTime;
+
+        bool isLowTime =
+            displayedPlayerTime > 0 &&
+            displayedPlayerTime <=
+            lowTimeWarningThreshold;
+
+        if (timeDecreased && isLowTime)
+        {
+            PlayLowTimeTick(
+                displayedPlayerTime
+            );
+        }
+
+        previousDisplayedPlayerTime =
+            displayedPlayerTime;
+    }
+
+    private void PlayLowTimeTick(
+        int secondsRemaining)
+    {
+        if (clockTickSounds == null ||
+            clockTickSounds.Length == 0)
+        {
+            return;
+        }
+
+        int soundIndex =
+            (lowTimeWarningThreshold -
+             secondsRemaining) %
+            clockTickSounds.Length;
+
+        AudioClip selectedSound =
+            clockTickSounds[soundIndex];
+
+        if (selectedSound == null)
+        {
+            return;
+        }
+
+        float urgency = Mathf.InverseLerp(
+            lowTimeWarningThreshold,
+            1f,
+            secondsRemaining
+        );
+
+        clockAudioSource.pitch = Mathf.Lerp(
+            lowTimePitchRange.x,
+            lowTimePitchRange.y,
+            urgency
+        );
+
+        clockAudioSource.PlayOneShot(
+            selectedSound,
+            lowTimeTickVolume
+        );
+    }
+
+    private void PlayEventSound(
+        AudioClip sound,
+        float volume)
+    {
+        eventAudioSource.Stop();
+
+        if (sound == null)
+        {
+            return;
+        }
+
+        eventAudioSource.clip = sound;
+        eventAudioSource.pitch = 1f;
+        eventAudioSource.volume = volume;
+        eventAudioSource.Play();
+    }
+
+    private void StopGameplayMusic()
+    {
+        if (inGameMusicSource != null)
+        {
+            inGameMusicSource.Stop();
+        }
+    }
+
+    private void SetPlayerControls(
+        bool controlsEnabled)
     {
         if (playerMovement != null)
         {
-            playerMovement.enabled = controlsEnabled;
+            playerMovement.enabled =
+                controlsEnabled;
         }
 
         if (timeSwapController != null)
         {
-            timeSwapController.enabled = controlsEnabled;
+            timeSwapController.enabled =
+                controlsEnabled;
         }
     }
 
@@ -146,10 +371,15 @@ public class GameManager : MonoBehaviour
         exitOpened = true;
         exitZone.SetOpen(true);
         evacuationTimerText.text = "EXIT OPEN";
+
+        PlayEventSound(
+            doorOpenSound,
+            doorOpenVolume
+        );
     }
 
     private void HandlePlayerExpired(
-    TimeHolder expiredTimeHolder)
+        TimeHolder expiredTimeHolder)
     {
         if (roundEnded)
         {
@@ -159,6 +389,10 @@ public class GameManager : MonoBehaviour
         roundEnded = true;
         Time.timeScale = 0f;
 
+        clockAudioSource.Stop();
+        StopGameplayMusic();
+        PlayEventSound(loseSound, loseVolume);
+
         ShowEndPanel(deathPanel);
     }
 
@@ -166,12 +400,16 @@ public class GameManager : MonoBehaviour
     {
         if (exitOpened)
         {
-            evacuationTimerText.text = "EXIT OPEN";
+            evacuationTimerText.text =
+                "EXIT OPEN";
+
             return;
         }
 
         int displayedTime =
-            Mathf.CeilToInt(evacuationTimeRemaining);
+            Mathf.CeilToInt(
+                evacuationTimeRemaining
+            );
 
         evacuationTimerText.text =
             $"EVACUATION: {displayedTime}";
@@ -181,7 +419,8 @@ public class GameManager : MonoBehaviour
     {
         if (playerTime != null)
         {
-            playerTime.Expired -= HandlePlayerExpired;
+            playerTime.Expired -=
+                HandlePlayerExpired;
         }
     }
 
@@ -189,9 +428,10 @@ public class GameManager : MonoBehaviour
     {
         if (PixelTransition.Instance != null)
         {
-            PixelTransition.Instance.TransitionAction(
-                () => panel.SetActive(true)
-            );
+            PixelTransition.Instance
+                .TransitionAction(
+                    () => panel.SetActive(true)
+                );
 
             return;
         }

@@ -9,6 +9,9 @@ public class TimeSwapController : MonoBehaviour
     [SerializeField] private float swapCooldown = 2f;
     [SerializeField] private TMP_Text cooldownText;
 
+    [SerializeField] private AudioClip swapSound;
+    [SerializeField] private float swapVolume = 0.9f;
+
     [SerializeField]
     private Color readyColour =
         new Color(0.1f, 0.75f, 0.25f);
@@ -24,6 +27,7 @@ public class TimeSwapController : MonoBehaviour
     private TimeHolder playerTime;
     private TimeHolder currentTarget;
     private TargetHighlight currentHighlight;
+    private AudioSource audioSource;
 
     private float nextSwapTime;
     private bool targetInRange;
@@ -32,6 +36,18 @@ public class TimeSwapController : MonoBehaviour
     {
         mainCamera = Camera.main;
         playerTime = GetComponent<TimeHolder>();
+
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+        {
+            audioSource =
+                gameObject.AddComponent<AudioSource>();
+        }
+
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.spatialBlend = 0f;
     }
 
     private void Update()
@@ -48,6 +64,8 @@ public class TimeSwapController : MonoBehaviour
         {
             playerTime.SwapTime(currentTarget);
             nextSwapTime = Time.time + swapCooldown;
+
+            PlaySwapSound();
         }
 
         UpdateHighlight();
@@ -60,7 +78,10 @@ public class TimeSwapController : MonoBehaviour
             mainCamera.ScreenToWorldPoint(Input.mousePosition);
 
         Collider2D[] hits =
-            Physics2D.OverlapCircleAll(mousePosition, selectionRadius);
+            Physics2D.OverlapCircleAll(
+                mousePosition,
+                selectionRadius
+            );
 
         TimeHolder closestTarget = null;
         float closestDistance = float.MaxValue;
@@ -137,6 +158,20 @@ public class TimeSwapController : MonoBehaviour
             cooldownText.text = "SWAP: READY";
             cooldownText.color = readyColour;
         }
+    }
+
+    private void PlaySwapSound()
+    {
+        if (swapSound == null)
+        {
+            return;
+        }
+
+        audioSource.pitch = 1f;
+        audioSource.PlayOneShot(
+            swapSound,
+            swapVolume
+        );
     }
 
     private void SetTarget(TimeHolder target)

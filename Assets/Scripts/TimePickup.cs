@@ -7,6 +7,9 @@ public class TimePickup : MonoBehaviour
     [SerializeField] private float maximumTimeAfterPickup = 30f;
     [SerializeField] private TMP_Text valueText;
 
+    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private float pickupVolume = 0.8f;
+
     public float RemainingValue { get; private set; }
 
     private bool collected;
@@ -72,6 +75,12 @@ public class TimePickup : MonoBehaviour
         );
 
         collector.AddTime(gainedTime);
+
+        if (collector.CompareTag("Player"))
+        {
+            PlayPickupSound();
+        }
+
         Destroy(gameObject);
     }
 
@@ -79,6 +88,25 @@ public class TimePickup : MonoBehaviour
     {
         RemainingValue = Mathf.Max(1f, value);
         UpdateText();
+    }
+
+    private void PlayPickupSound()
+    {
+        if (pickupSound == null)
+        {
+            return;
+        }
+
+        Vector3 soundPosition =
+            Camera.main != null
+                ? Camera.main.transform.position
+                : transform.position;
+
+        AudioSource.PlayClipAtPoint(
+            pickupSound,
+            soundPosition,
+            pickupVolume
+        );
     }
 
     private void UpdateText()
