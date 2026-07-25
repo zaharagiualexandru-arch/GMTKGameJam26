@@ -1,18 +1,10 @@
-using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(TimeHolder))]
 public class CharacterStatusEffects : MonoBehaviour
 {
-    [SerializeField] private TMP_Text statusText;
-
     [SerializeField]
-    private Color speedColour =
-        new Color(0.95f, 0.75f, 0.1f);
-
-    [SerializeField]
-    private Color lockColour =
-        new Color(0.1f, 0.55f, 1f);
+    private GameObject timeLockWorldIndicator;
 
     public float SpeedMultiplier =>
         speedBoostRemaining > 0f
@@ -34,7 +26,7 @@ public class CharacterStatusEffects : MonoBehaviour
 
     private void Awake()
     {
-        UpdateStatusText();
+        UpdateTimeLockIndicator();
     }
 
     private void Update()
@@ -60,7 +52,7 @@ public class CharacterStatusEffects : MonoBehaviour
             );
         }
 
-        UpdateStatusText();
+        UpdateTimeLockIndicator();
     }
 
     public void ApplySpeedBoost(
@@ -76,8 +68,6 @@ public class CharacterStatusEffects : MonoBehaviour
             speedBoostRemaining,
             duration
         );
-
-        UpdateStatusText();
     }
 
     public void ApplyTimeLock(float duration)
@@ -87,61 +77,16 @@ public class CharacterStatusEffects : MonoBehaviour
             duration
         );
 
-        UpdateStatusText();
+        UpdateTimeLockIndicator();
     }
 
-    private void UpdateStatusText()
+    private void UpdateTimeLockIndicator()
     {
-        if (statusText == null)
+        if (timeLockWorldIndicator != null)
         {
-            return;
-        }
-
-        bool hasSpeed =
-            speedBoostRemaining > 0f;
-
-        bool hasLock =
-            timeLockRemaining > 0f;
-
-        statusText.gameObject.SetActive(
-            hasSpeed || hasLock
-        );
-
-        if (!hasSpeed && !hasLock)
-        {
-            statusText.text = "";
-            return;
-        }
-
-        string speedHex =
-            ColorUtility.ToHtmlStringRGB(
-                speedColour
+            timeLockWorldIndicator.SetActive(
+                IsTimeLocked
             );
-
-        string lockHex =
-            ColorUtility.ToHtmlStringRGB(
-                lockColour
-            );
-
-        string speedMessage = hasSpeed
-            ? $"<color=#{speedHex}>SPEED {Mathf.CeilToInt(speedBoostRemaining)}</color>"
-            : "";
-
-        string lockMessage = hasLock
-            ? $"<color=#{lockHex}>LOCK {Mathf.CeilToInt(timeLockRemaining)}</color>"
-            : "";
-
-        if (hasSpeed && hasLock)
-        {
-            statusText.text =
-                $"{speedMessage}\n{lockMessage}";
-        }
-        else
-        {
-            statusText.text =
-                hasSpeed
-                    ? speedMessage
-                    : lockMessage;
         }
     }
 }

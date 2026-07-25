@@ -27,6 +27,10 @@ public class TimeSwapController : MonoBehaviour
     private TimeHolder playerTime;
     private TimeHolder currentTarget;
     private TargetHighlight currentHighlight;
+
+    private CharacterStatusEffects
+        currentTargetEffects;
+
     private AudioSource audioSource;
 
     private float nextSwapTime;
@@ -58,12 +62,15 @@ public class TimeSwapController : MonoBehaviour
         bool canSwap =
             currentTarget != null &&
             targetInRange &&
+            !IsCurrentTargetLocked() &&
             CooldownRemaining <= 0f;
 
-        if (Input.GetMouseButtonDown(0) && canSwap)
+        if (Input.GetMouseButtonDown(0) &&
+            canSwap)
         {
             playerTime.SwapTime(currentTarget);
-            nextSwapTime = Time.time + swapCooldown;
+            nextSwapTime =
+                Time.time + swapCooldown;
 
             PlaySwapSound();
         }
@@ -75,7 +82,9 @@ public class TimeSwapController : MonoBehaviour
     private void FindTarget()
     {
         Vector3 mousePosition =
-            mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            mainCamera.ScreenToWorldPoint(
+                Input.mousePosition
+            );
 
         Collider2D[] hits =
             Physics2D.OverlapCircleAll(
@@ -98,14 +107,18 @@ public class TimeSwapController : MonoBehaviour
                 continue;
             }
 
-            float distanceFromMouse = Vector2.Distance(
-                mousePosition,
-                candidate.transform.position
-            );
+            float distanceFromMouse =
+                Vector2.Distance(
+                    mousePosition,
+                    candidate.transform.position
+                );
 
-            if (distanceFromMouse < closestDistance)
+            if (distanceFromMouse <
+                closestDistance)
             {
-                closestDistance = distanceFromMouse;
+                closestDistance =
+                    distanceFromMouse;
+
                 closestTarget = candidate;
             }
         }
@@ -130,6 +143,12 @@ public class TimeSwapController : MonoBehaviour
         ) <= swapRange;
     }
 
+    private bool IsCurrentTargetLocked()
+    {
+        return currentTargetEffects != null &&
+               currentTargetEffects.IsTimeLocked;
+    }
+
     private void UpdateHighlight()
     {
         if (currentHighlight == null)
@@ -139,6 +158,7 @@ public class TimeSwapController : MonoBehaviour
 
         bool canSwap =
             targetInRange &&
+            !IsCurrentTargetLocked() &&
             CooldownRemaining <= 0f;
 
         currentHighlight.SetHighlighted(canSwap);
@@ -151,12 +171,16 @@ public class TimeSwapController : MonoBehaviour
             cooldownText.text =
                 $"SWAP: {CooldownRemaining:0.0}";
 
-            cooldownText.color = cooldownColour;
+            cooldownText.color =
+                cooldownColour;
         }
         else
         {
-            cooldownText.text = "SWAP: READY";
-            cooldownText.color = readyColour;
+            cooldownText.text =
+                "SWAP: READY";
+
+            cooldownText.color =
+                readyColour;
         }
     }
 
@@ -168,6 +192,7 @@ public class TimeSwapController : MonoBehaviour
         }
 
         audioSource.pitch = 1f;
+
         audioSource.PlayOneShot(
             swapSound,
             swapVolume
@@ -183,12 +208,20 @@ public class TimeSwapController : MonoBehaviour
 
         currentTarget = target;
         currentHighlight = null;
+        currentTargetEffects = null;
 
-        if (currentTarget != null)
+        if (currentTarget == null)
         {
-            currentHighlight =
-                currentTarget.GetComponent<TargetHighlight>();
+            return;
         }
+
+        currentHighlight =
+            currentTarget.GetComponent<
+                TargetHighlight>();
+
+        currentTargetEffects =
+            currentTarget.GetComponent<
+                CharacterStatusEffects>();
     }
 
     private void OnDisable()

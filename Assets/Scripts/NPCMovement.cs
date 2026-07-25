@@ -10,6 +10,7 @@ public class NPCMovement : MonoBehaviour
         Wander,
         Chase,
         CollectPickup,
+        CollectAbility,
         Flee
     }
 
@@ -44,6 +45,7 @@ public class NPCMovement : MonoBehaviour
     private TimeHolder fleeTarget;
     private TimeHolder touchingTarget;
     private TimePickup pickupTarget;
+    private AbilityPickup abilityTarget;
     private MovementState movementState;
 
     private Vector2 wanderDirection;
@@ -132,6 +134,18 @@ public class NPCMovement : MonoBehaviour
         }
         else if (
             movementState ==
+                MovementState.CollectAbility &&
+            abilityTarget != null)
+        {
+            moveDirection =
+                ((Vector2)abilityTarget
+                    .transform.position -
+                 rb.position).normalized;
+
+            movementSpeed = chaseSpeed;
+        }
+        else if (
+            movementState ==
                 MovementState.Flee &&
             fleeTarget != null)
         {
@@ -161,6 +175,7 @@ public class NPCMovement : MonoBehaviour
         chaseTarget = null;
         fleeTarget = null;
         pickupTarget = null;
+        abilityTarget = null;
 
         int ownSeconds =
             Mathf.CeilToInt(
@@ -171,6 +186,9 @@ public class NPCMovement : MonoBehaviour
             float.MinValue;
 
         float nearestThreatDistance =
+            float.MaxValue;
+
+        float nearestAbilityDistance =
             float.MaxValue;
 
         Collider2D[] nearbyColliders =
@@ -213,6 +231,32 @@ public class NPCMovement : MonoBehaviour
                 continue;
             }
 
+            AbilityPickup ability =
+                nearbyCollider
+                    .GetComponentInParent<
+                        AbilityPickup>();
+
+            if (ability != null &&
+                ability.CanBeCollectedBy(timeHolder))
+            {
+                float abilityDistance =
+                    Vector2.Distance(
+                        rb.position,
+                        ability.transform.position
+                    );
+
+                if (abilityDistance <
+                    nearestAbilityDistance)
+                {
+                    abilityTarget = ability;
+
+                    nearestAbilityDistance =
+                        abilityDistance;
+                }
+
+                continue;
+            }
+
             TimeHolder candidate =
                 nearbyCollider
                     .GetComponentInParent<TimeHolder>();
@@ -238,9 +282,10 @@ public class NPCMovement : MonoBehaviour
             bool candidateIsPlayer =
                 candidate.CompareTag("Player");
 
-            CharacterStatusEffects candidateEffects =
-            candidate.GetComponent<
-            CharacterStatusEffects>();
+            CharacterStatusEffects
+                candidateEffects =
+                    candidate.GetComponent<
+                        CharacterStatusEffects>();
 
             bool candidateIsTimeLocked =
                 candidateEffects != null &&
@@ -305,6 +350,11 @@ public class NPCMovement : MonoBehaviour
         {
             movementState =
                 MovementState.Chase;
+        }
+        else if (abilityTarget != null)
+        {
+            movementState =
+                MovementState.CollectAbility;
         }
         else
         {
