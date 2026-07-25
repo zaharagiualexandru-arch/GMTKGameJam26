@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PickupSpawner
   watchPrefab: {fileID: 3427620312376490067, guid: d6f1a040ab064c742bfede5e0663444b, type: 3}
-  initialCount: 1
-  maximumActiveWatches: 2
+  initialCount: 2
+  maximumActiveWatches: 3
   spawnIntervalRange: {x: 12, y: 18}
   minimumBounds: {x: -18.5, y: -10.5}
   maximumBounds: {x: 18.5, y: 10.5}
@@ -166,7 +166,7 @@ Transform:
   m_GameObject: {fileID: 30402768}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.49247, y: -0.17497, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2858,6 +2858,8 @@ MonoBehaviour:
   selectionRadius: 0.75
   swapCooldown: 5
   cooldownText: {fileID: 683480186}
+  swapSound: {fileID: 8300000, guid: 73a825e6818f29f4bb0827312a91b3a1, type: 3}
+  swapVolume: 0.9
   readyColour: {r: 0.1, g: 0.75, b: 0.25, a: 1}
   cooldownColour: {r: 0, g: 0, b: 0, a: 1}
 --- !u!95 &1186000956
@@ -3048,7 +3050,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 177573942280e4a4fa141f905aa0465c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  evacuationDuration: 3
+  evacuationDuration: 60
   evacuationTimerText: {fileID: 1402103758}
   startCountdownText: {fileID: 982221482}
   startingCountdown: 3
@@ -3059,6 +3061,16 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c67e5539752983c49a9d06cbe3558e87, type: 3}
   countdownTickVolume: 0.8
   goTickPitch: 2
+  lowTimeWarningThreshold: 5
+  lowTimeTickVolume: 0.85
+  lowTimePitchRange: {x: 0.95, y: 1.2}
+  inGameMusicSource: {fileID: 428314879}
+  doorOpenSound: {fileID: 8300000, guid: e3d27f8af73adca4f8b2bdd535b4f1f3, type: 3}
+  winSound: {fileID: 8300000, guid: 57f512fa2a7e52b4da4ba4eb07f11262, type: 3}
+  loseSound: {fileID: 8300000, guid: 0c62f09efcf005943a1b714b7ef5d587, type: 3}
+  doorOpenVolume: 0.5
+  winVolume: 0.7
+  loseVolume: 0.7
   exitZone: {fileID: 389927441}
   deathPanel: {fileID: 940016663}
   victoryPanel: {fileID: 621738872}
@@ -3071,7 +3083,7 @@ Transform:
   m_GameObject: {fileID: 1380975487}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.49247, y: -0.17497, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

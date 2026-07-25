@@ -65,11 +65,25 @@ public class NPCContactSteal : MonoBehaviour
             return;
         }
 
+        CharacterStatusEffects targetEffects =
+            targetTime.GetComponent<
+                CharacterStatusEffects>();
+
+        if (targetEffects != null &&
+            targetEffects.IsTimeLocked)
+        {
+            return;
+        }
+
         int npcSeconds =
-            Mathf.CeilToInt(npcTime.RemainingTime);
+            Mathf.CeilToInt(
+                npcTime.RemainingTime
+            );
 
         int targetSeconds =
-            Mathf.CeilToInt(targetTime.RemainingTime);
+            Mathf.CeilToInt(
+                targetTime.RemainingTime
+            );
 
         bool targetIsPlayer =
             targetTime.CompareTag("Player");

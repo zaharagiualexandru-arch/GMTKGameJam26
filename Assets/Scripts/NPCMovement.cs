@@ -2,6 +2,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(TimeHolder))]
+[RequireComponent(typeof(CharacterStatusEffects))]
 public class NPCMovement : MonoBehaviour
 {
     private enum MovementState
@@ -37,6 +38,7 @@ public class NPCMovement : MonoBehaviour
 
     private Rigidbody2D rb;
     private TimeHolder timeHolder;
+    private CharacterStatusEffects statusEffects;
 
     private TimeHolder chaseTarget;
     private TimeHolder fleeTarget;
@@ -52,6 +54,9 @@ public class NPCMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         timeHolder = GetComponent<TimeHolder>();
+
+        statusEffects =
+            GetComponent<CharacterStatusEffects>();
     }
 
     private void Start()
@@ -59,7 +64,11 @@ public class NPCMovement : MonoBehaviour
         PickWanderDirection();
 
         nextTargetRefresh =
-            Time.time + Random.Range(0f, targetRefreshInterval);
+            Time.time +
+            Random.Range(
+                0f,
+                targetRefreshInterval
+            );
     }
 
     private void Update()
@@ -67,11 +76,14 @@ public class NPCMovement : MonoBehaviour
         if (Time.time >= nextTargetRefresh)
         {
             RefreshTargets();
+
             nextTargetRefresh =
-                Time.time + targetRefreshInterval;
+                Time.time +
+                targetRefreshInterval;
         }
 
-        if (movementState == MovementState.Wander &&
+        if (movementState ==
+                MovementState.Wander &&
             Time.time >= nextWanderChange)
         {
             PickWanderDirection();
@@ -89,7 +101,8 @@ public class NPCMovement : MonoBehaviour
         Vector2 moveDirection = wanderDirection;
         float movementSpeed = wanderSpeed;
 
-        if (movementState == MovementState.Chase &&
+        if (movementState ==
+                MovementState.Chase &&
             chaseTarget != null)
         {
             if (touchingTarget == chaseTarget)
@@ -99,27 +112,33 @@ public class NPCMovement : MonoBehaviour
             }
 
             moveDirection =
-                ((Vector2)chaseTarget.transform.position -
+                ((Vector2)chaseTarget
+                    .transform.position -
                  rb.position).normalized;
 
             movementSpeed = chaseSpeed;
         }
         else if (
-            movementState == MovementState.CollectPickup &&
+            movementState ==
+                MovementState.CollectPickup &&
             pickupTarget != null)
         {
             moveDirection =
-                ((Vector2)pickupTarget.transform.position -
+                ((Vector2)pickupTarget
+                    .transform.position -
                  rb.position).normalized;
 
             movementSpeed = chaseSpeed;
         }
-        else if (movementState == MovementState.Flee &&
-                 fleeTarget != null)
+        else if (
+            movementState ==
+                MovementState.Flee &&
+            fleeTarget != null)
         {
             moveDirection =
                 (rb.position -
-                 (Vector2)fleeTarget.transform.position)
+                 (Vector2)fleeTarget
+                    .transform.position)
                 .normalized;
 
             movementSpeed = fleeSpeed;
@@ -128,8 +147,13 @@ public class NPCMovement : MonoBehaviour
         moveDirection =
             ApplyWallAvoidance(moveDirection);
 
+        float currentSpeed =
+            movementSpeed *
+            statusEffects.SpeedMultiplier;
+
         rb.linearVelocity =
-            moveDirection.normalized * movementSpeed;
+            moveDirection.normalized *
+            currentSpeed;
     }
 
     private void RefreshTargets()
@@ -139,10 +163,15 @@ public class NPCMovement : MonoBehaviour
         pickupTarget = null;
 
         int ownSeconds =
-            Mathf.CeilToInt(timeHolder.RemainingTime);
+            Mathf.CeilToInt(
+                timeHolder.RemainingTime
+            );
 
-        float bestTimeSourceScore = float.MinValue;
-        float nearestThreatDistance = float.MaxValue;
+        float bestTimeSourceScore =
+            float.MinValue;
+
+        float nearestThreatDistance =
+            float.MaxValue;
 
         Collider2D[] nearbyColliders =
             Physics2D.OverlapCircleAll(
@@ -150,10 +179,13 @@ public class NPCMovement : MonoBehaviour
                 awarenessRadius
             );
 
-        foreach (Collider2D nearbyCollider in nearbyColliders)
+        foreach (
+            Collider2D nearbyCollider
+            in nearbyColliders)
         {
             TimePickup pickup =
-                nearbyCollider.GetComponentInParent<TimePickup>();
+                nearbyCollider
+                    .GetComponentInParent<TimePickup>();
 
             if (pickup != null &&
                 pickup.CanBeCollectedBy(timeHolder))
@@ -168,18 +200,22 @@ public class NPCMovement : MonoBehaviour
                     pickup.RemainingValue /
                     (pickupDistance + 1f);
 
-                if (pickupScore > bestTimeSourceScore)
+                if (pickupScore >
+                    bestTimeSourceScore)
                 {
                     pickupTarget = pickup;
                     chaseTarget = null;
-                    bestTimeSourceScore = pickupScore;
+
+                    bestTimeSourceScore =
+                        pickupScore;
                 }
 
                 continue;
             }
 
             TimeHolder candidate =
-                nearbyCollider.GetComponentInParent<TimeHolder>();
+                nearbyCollider
+                    .GetComponentInParent<TimeHolder>();
 
             if (candidate == null ||
                 candidate == timeHolder ||
@@ -202,10 +238,19 @@ public class NPCMovement : MonoBehaviour
             bool candidateIsPlayer =
                 candidate.CompareTag("Player");
 
+            CharacterStatusEffects candidateEffects =
+            candidate.GetComponent<
+            CharacterStatusEffects>();
+
+            bool candidateIsTimeLocked =
+                candidateEffects != null &&
+                candidateEffects.IsTimeLocked;
+
             bool canChase =
-                candidateSeconds > ownSeconds ||
-                (candidateIsPlayer &&
-                 candidateSeconds == ownSeconds);
+                !candidateIsTimeLocked &&
+                (candidateSeconds > ownSeconds ||
+                 (candidateIsPlayer &&
+                  candidateSeconds == ownSeconds));
 
             if (canChase)
             {
@@ -217,13 +262,15 @@ public class NPCMovement : MonoBehaviour
                     );
 
                 float characterScore =
-                    potentialGain / (distance + 1f);
+                    potentialGain /
+                    (distance + 1f);
 
                 if (characterScore >
                     bestTimeSourceScore)
                 {
                     chaseTarget = candidate;
                     pickupTarget = null;
+
                     bestTimeSourceScore =
                         characterScore;
                 }
@@ -234,16 +281,20 @@ public class NPCMovement : MonoBehaviour
                 distance <= dangerRadius;
 
             if (isThreat &&
-                distance < nearestThreatDistance)
+                distance <
+                nearestThreatDistance)
             {
                 fleeTarget = candidate;
-                nearestThreatDistance = distance;
+
+                nearestThreatDistance =
+                    distance;
             }
         }
 
         if (fleeTarget != null)
         {
-            movementState = MovementState.Flee;
+            movementState =
+                MovementState.Flee;
         }
         else if (pickupTarget != null)
         {
@@ -252,11 +303,13 @@ public class NPCMovement : MonoBehaviour
         }
         else if (chaseTarget != null)
         {
-            movementState = MovementState.Chase;
+            movementState =
+                MovementState.Chase;
         }
         else
         {
-            movementState = MovementState.Wander;
+            movementState =
+                MovementState.Wander;
         }
     }
 
@@ -294,7 +347,8 @@ public class NPCMovement : MonoBehaviour
         );
 
         return direction +
-               avoidance * wallAvoidanceStrength;
+               avoidance *
+               wallAvoidanceStrength;
     }
 
     private void OnCollisionStay2D(
@@ -334,7 +388,8 @@ public class NPCMovement : MonoBehaviour
         }
 
         nextWanderChange =
-            Time.time + Random.Range(
+            Time.time +
+            Random.Range(
                 wanderIntervalRange.x,
                 wanderIntervalRange.y
             );
