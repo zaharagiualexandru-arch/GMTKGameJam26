@@ -1,4 +1,7 @@
 # ⏱️ Second Hand
+<p align="center">
+  <img src="Images/Thumbnail.png" width="700" />
+</p>
 
 **Second Hand** is a fast-paced 2D game created in **Unity / C#** for a 4-day game jam based around the theme **"Count Down"**.
 
