@@ -1,7 +1,4 @@
 # ⏱️ Second Hand
-<p align="center">
-  <img src="Images/Thumbnail.png" width="700" />
-</p>
 
 **Second Hand** is a fast-paced 2D game created in **Unity / C#** for a 4-day game jam based around the theme **"Count Down"**.
 
@@ -430,23 +427,20 @@ This helped keep the game focused around the game jam's **"Count Down"** theme.
 
 ## 🎥 Gameplay
 
-Gameplay screenshots and footage can be displayed here.
-
-Example:
-
-```html
 <p align="center">
-  <img src="Images/gameplay1.png" width="45%" />
-  <img src="Images/gameplay2.png" width="45%" />
+  <img src="Images/SecondHandGIF.gif" width="800" />
 </p>
-```
 
-A gameplay GIF can also be displayed directly inside the README:
+### Screenshots
 
-```markdown
-![Second Hand Gameplay](Images/gameplay.gif)
-```
+<p align="center">
+  <img src="Images/SecondHand1.png" width="48%" />
+  <img src="Images/SecondHand2.png" width="48%" />
+</p>
 
+<p align="center">
+  <img src="Images/SecondHand3.png" width="70%" />
+</p>
 ---
 
 ## 🎮 Play the Game
