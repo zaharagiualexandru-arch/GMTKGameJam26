@@ -37,8 +37,6 @@ Survive the **60-second evacuation countdown**, then reach the open exit before 
 | **Mouse** | Hover over an NPC to select it |
 | **Left click** | Swap timers with an eligible highlighted NPC |
 
-The target marker appears when the selected NPC is within range, is not protected by Time Lock, and the **5-second swap cooldown** is ready.
-
 ## 🤖 NPC Behaviour
 
 NPCs compete with the player and each other for time.
@@ -132,14 +130,7 @@ The project provided practice in component-based design, event-driven communicat
 | **Unity / C#** | Gameplay, physics, UI and animation integration |
 | **Aseprite** | Character pixel art and animation |
 | **Audacity** | Audio editing |
-| **Git / GitHub** | Version control |
 | **WebGL / itch.io** | Browser build and distribution |
-
-## 👤 Credits
-
-- **Alex Ziou:** game design, Unity integration, character art, balancing and playtesting.
-- **ChatGPT:** assistance with scripting, debugging and technical guidance.
-- Music and sound effects use external audio assets, with editing carried out in Audacity.
 
 ## 📦 Running the Project
 
