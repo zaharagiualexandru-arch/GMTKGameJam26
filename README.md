@@ -427,22 +427,9 @@ This helped keep the game focused around the game jam's **"Count Down"** theme.
 
 ## 🎥 Gameplay
 
-Gameplay screenshots and footage can be displayed here.
-
-Example:
-
-```html
 <p align="center">
-  <img src="Images/gameplay1.png" width="45%" />
-  <img src="Images/gameplay2.png" width="45%" />
+  <img src="Images/SecondHandGIF.gif" width="800" />
 </p>
-```
-
-A gameplay GIF can also be displayed directly inside the README:
-
-```markdown
-![Second Hand Gameplay](Images/gameplay.gif)
-```
 
 ---
 
