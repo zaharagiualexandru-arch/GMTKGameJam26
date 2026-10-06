@@ -115,8 +115,6 @@ Player: 13 seconds
 NPC:     6 seconds
 ```
 
-The characters themselves remain in the same position.
-
 **Only their remaining countdown timers are exchanged.**
 
 This can be used to:
