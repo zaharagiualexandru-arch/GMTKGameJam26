@@ -431,16 +431,6 @@ This helped keep the game focused around the game jam's **"Count Down"** theme.
   <img src="Images/SecondHandGIF.gif" width="800" />
 </p>
 
-### Screenshots
-
-<p align="center">
-  <img src="Images/SecondHand1.png" width="48%" />
-  <img src="Images/SecondHand2.png" width="48%" />
-</p>
-
-<p align="center">
-  <img src="Images/SecondHand3.png" width="70%" />
-</p>
 ---
 
 ## 🎮 Play the Game
