@@ -451,7 +451,7 @@ A gameplay GIF can also be displayed directly inside the README:
 Second Hand is available as a **WebGL browser game on itch.io**.
 
 **Play Second Hand:**  
-[Add itch.io link here]
+https://alexziou.itch.io/second-hand
 
 ---
 
@@ -466,31 +466,3 @@ To open the project locally:
 5. Open the project using the appropriate Unity version.
 6. Open the main menu scene.
 7. Press **Play**.
-
----
-
-## 📌 Project Status
-
-**Completed**
-
-Second Hand was created specifically for the game jam and is considered a finished project.
-
-The repository is preserved as part of my game development portfolio.
-
----
-
-## 👤 Developer
-
-**Alex**
-
-Games Programmer based in London.
-
-🎮 Unity / C#  
-⚙️ Unreal Engine 5 / C++  
-🕹️ Gameplay Programming  
-🛠️ Git / GitHub  
-🧊 Blender  
-
-[GitHub Profile](https://github.com/zaharagiualexandru)  
-[itch.io](https://alexziou.itch.io/)  
-[LinkedIn](YOUR-LINKEDIN-LINK)
