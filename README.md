@@ -139,16 +139,33 @@ NPCs can also search for pickups, meaning the player may have to compete with ot
 
 Each pickup has its own description displayed in-game and its effect lasts for **4 seconds**.
 
-### ⏱️ Timer
+### ⏱️ Time Watch
 
-A timer-based power-up that interacts with the game's main countdown mechanic.
+The **Time Watch** contains additional time that can be added to the player's countdown.
 
-### 👟 Hermes Boots
+However, the amount of time available on the watch decreases while it remains on the floor, rewarding the player for collecting it quickly.
 
-A temporary movement-based power-up that gives the player an advantage when moving around the arena.
+The player's timer is capped at **30 seconds**.
 
-### ❄️ Freeze Time
+---
 
+### 👟 Hermes Boot
+
+The **Hermes Boot** gives the player a temporary **50% movement-speed increase for 4 seconds**.
+
+This can help the player escape NPCs, reach pickups, or close the distance to an NPC they want to swap timers with.
+
+---
+
+### 🔒 Time Lock
+
+The **Time Lock** protects the player's timer for **4 seconds**.
+
+While active, NPCs cannot steal time from the player.
+
+It also affects timer swapping — if an NPC currently has a Time Lock active, the player cannot swap timers with that NPC until the effect expires.
+
+---
 A temporary power-up that affects the countdown system and gives the player a short opportunity to act without the usual time pressure.
 
 All pickup effects last for:
@@ -204,23 +221,27 @@ Pickups
 Walls / Obstacles
 ```
 
-Their behaviour can change depending on the amount of time they have compared with nearby characters.
+A major part of their decision-making is based on comparing their remaining time with nearby characters.
 
 For example:
 
 ```text
-NPC has more time than target
-            ↓
-          CHASE
+NPC has LESS time than the player or another NPC
+                    ↓
+                  CHASE
 
-NPC has less time than threat
-            ↓
-           FLEE
+NPC has MORE time than the player or another NPC
+                    ↓
+                   FLEE
 ```
 
-This means NPCs can dynamically change between predator and prey throughout a match.
+An NPC with less time becomes aggressive because stealing time from another character can help it survive.
 
-Because NPCs can interact with both the player and other NPCs, the arena continues changing even when the player is not directly involved.
+An NPC with more time instead tries to protect its advantage by fleeing from characters that could take time from it.
+
+Because timers constantly change through stealing, swapping and pickups, an NPC can switch between **chasing and fleeing during the same match**.
+
+This creates situations where a character that was previously chasing the player may suddenly begin running away once the balance of time changes.
 
 ---
 
