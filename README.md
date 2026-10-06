@@ -34,8 +34,6 @@ Player: 13 seconds
 NPC:     6 seconds
 ```
 
-The characters themselves stay in the same position — only their remaining time is exchanged.
-
 NPCs also interact with each other, compete for time and search for pickups around the arena.
 
 Once the evacuation countdown finishes, the exit becomes available and the player must reach it before their own timer runs out.
